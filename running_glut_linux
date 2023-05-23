@@ -1,11 +1,14 @@
 sudo apt-get install freeglut3 freeglut3-dev
-vi main.c
-gcc -o main main.c -lGL -lGLU -lglut
-./main
+vi file.c
+------------------------------------------------
+Command to run road.c:
+
+gcc -o road road.c -lGL -lGLU -lglut
+./road
 
 -------------------------------------------------
 Command to run cat.c:
 
-gcc -o main cat.c -lGL -lGLU -lglut -lm
-./main
+gcc -o cat cat.c -lGL -lGLU -lglut -lm
+./cat
 
