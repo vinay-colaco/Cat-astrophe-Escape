@@ -9,6 +9,7 @@ float roadPosition = 0.0f;        // Current position of dashes on the road
 float dashSpeed = 0.01f;          // Speed of the moving dashes
 float drumRotation = 0.0f;        // Current rotation angle of the drum
 float drumRotationSpeed = -1.0f;  // Speed of the drum rotation
+int elapsedTime = 0;              // Elapsed time in milliseconds
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -37,19 +38,32 @@ void display() {
     glEnd();
 
     // Set the color for the drum
-    glColor3f(1.0f, 0.0f, 0.0f);
     glPushMatrix();
     glTranslatef(drumPosition, -0.55f, 0.0f);
     glRotatef(drumRotation, 0.0f, 0.0f, 1.0f);
-    // Draw the drum as a circle
-    glBegin(GL_TRIANGLE_FAN);
-    for (int i = 0; i <= 360; i++) {
-        float theta = i * 3.14159f / 180.0f;
-        float x = 0.05f * cos(theta);
-        float y = 0.05f * sin(theta);
-        glVertex2f(x, y);
+    // Draw the drum as a circle with rainbow stripes
+    float stripeWidth = 0.05f;
+    int numStripes = 6;
+    float stripeAngle = 360.0f / numStripes;
+    for (int i = 0; i < numStripes; i++) {
+        float hue = (float)i / numStripes;
+        glColor3f(hue, 1.0f - hue, 1.0f);
+        glBegin(GL_QUADS);
+        for (int angle = 0; angle < 180; angle += 10) {
+            float theta1 = angle * 3.14159f / 180.0f;
+            float theta2 = (angle + 10) * 3.14159f / 180.0f;
+            float x1 = stripeWidth * cos(theta1);
+            float y1 = stripeWidth * sin(theta1);
+            float x2 = stripeWidth * cos(theta2);
+            float y2 = stripeWidth * sin(theta2);
+            glVertex2f(x1, y1);
+            glVertex2f(x2, y2);
+            glVertex2f(x2, -y2);
+            glVertex2f(x1, -y1);
+        }
+        glEnd();
+        glRotatef(stripeAngle, 0.0f, 0.0f, 1.0f);
     }
-    glEnd();
     glPopMatrix();
 
     glFlush();
@@ -78,6 +92,15 @@ void update(int value) {
     // Wrap the dashes around when they reach the left edge of the road
     if (roadPosition < -0.2f)
         roadPosition = 0.0f;
+
+    elapsedTime += 16; // Update elapsed time
+
+    // Increase dash and drum speed every 20 seconds
+    if (elapsedTime >= 20000) {
+        elapsedTime = 0; // Reset elapsed time
+        dashSpeed += 0.001f; // Increase dash speed
+        drumSpeed -= 0.001f; // Decrease drum speed
+    }
 
     glutPostRedisplay();
 
