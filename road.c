@@ -3,88 +3,124 @@
 #include <math.h>
 
 // Global variables
-float drumPosition = 1.0f;        // Current position of the drum on the road
-float drumSpeed = -0.01f;         // Speed of the drum movement
-float roadPosition = 0.0f;        // Current position of dashes on the road
-float dashSpeed = 0.01f;          // Speed of the moving dashes
-float drumRotation = 0.0f;        // Current rotation angle of the drum
-float drumRotationSpeed = -1.0f;  // Speed of the drum rotation
-int elapsedTime = 0;              // Elapsed time in milliseconds
+float wheelPosition = 1.0f; // Current position of the wheel on the road
+float wheelSpeed = -0.01f; // Speed of the wheel movement
+float roadPosition = 0.0f; // Current position of dashes on the road
+float dashSpeed = 0.01f; // Speed of the moving dashes
+float wheelRotation = 0.0f; // Current rotation angle of the wheel
+float wheelRotationSpeed = -1.0f; // Speed of the wheel rotation
+float hydrantPosition = 1.0f; // Current position of the fire hydrant
+float hydrantSpeed = -0.01f; // Speed of the fire hydrant movement
+bool wheelActive = true; // Flag indicating if the wheel is active
+bool hydrantActive = false; // Flag indicating if the fire hydrant is active
+int elapsedTime = 0; // Elapsed time in milliseconds
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
 
-    // Set the color for the road
-    glColor3f(0.4f, 0.4f, 0.4f);
-    // Draw the road as a rectangle
-    glBegin(GL_QUADS);
-    glVertex2f(-1.0f, -0.25f);
-    glVertex2f(1.0f, -0.25f);
-    glVertex2f(1.0f, -1.0f);
-    glVertex2f(-1.0f, -1.0f);
-    glEnd();
-
     // Set the color for the moving dashes on the road
     glColor3f(1.0f, 1.0f, 1.0f);
+
     // Draw the moving dashes on the road
     glBegin(GL_QUADS);
     for (float x = -0.8f + roadPosition; x < 0.8f; x += 0.2f) {
-        glVertex2f(x, -0.62f);
-        glVertex2f(x, -0.64f);
-        glVertex2f(x + 0.1f, -0.64f);
-        glVertex2f(x + 0.1f, -0.62f);
+        glVertex2f(x, -0.42f);
+        glVertex2f(x, -0.44f);
+        glVertex2f(x + 0.1f, -0.44f);
+        glVertex2f(x + 0.1f, -0.42f);
     }
     glEnd();
 
-    // Set the color for the drum
+    // Set the color for the wheel
     glPushMatrix();
-    glTranslatef(drumPosition, -0.55f, 0.0f);
-    glRotatef(drumRotation, 0.0f, 0.0f, 1.0f);
-    // Draw the drum as a circle with rainbow stripes
-    float stripeWidth = 0.05f;
-    int numStripes = 6;
-    float stripeAngle = 360.0f / numStripes;
-    for (int i = 0; i < numStripes; i++) {
-        float hue = (float)i / numStripes;
-        glColor3f(hue, 1.0f - hue, 1.0f);
-        glBegin(GL_QUADS);
-        for (int angle = 0; angle < 180; angle += 10) {
-            float theta1 = angle * 3.14159f / 180.0f;
-            float theta2 = (angle + 10) * 3.14159f / 180.0f;
-            float x1 = stripeWidth * cos(theta1);
-            float y1 = stripeWidth * sin(theta1);
-            float x2 = stripeWidth * cos(theta2);
-            float y2 = stripeWidth * sin(theta2);
-            glVertex2f(x1, y1);
-            glVertex2f(x2, y2);
-            glVertex2f(x2, -y2);
-            glVertex2f(x1, -y1);
-        }
-        glEnd();
-        glRotatef(stripeAngle, 0.0f, 0.0f, 1.0f);
+    glTranslatef(wheelPosition, -0.32f, 0.0f);  // Adjust the y-coordinate for the wheel
+    glRotatef(wheelRotation, 0.0f, 0.0f, 1.0f);
+
+    // Draw the wheel as a circle with spokes
+    int numSpokes = 12;
+    float radius = 0.08f;  // Modify this value to change the radius of the wheel
+    float spokeWidth = 0.01f;
+    float spokeAngle = 360.0f / numSpokes;
+
+    // Draw the outer rubber part of the wheel
+    glColor3f(0.3f, 0.3f, 0.3f);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(0.0f, 0.0f);
+    for (float angle = 0.0f; angle <= 360.0f; angle += 10.0f) {
+        float theta = angle * 3.14159f / 180.0f;
+        float x = radius * cos(theta);
+        float y = radius * sin(theta);
+        glVertex2f(x, y);
     }
+    glEnd();
+
+    // Draw the spokes
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+    for (int i = 0; i < numSpokes; i++) {
+        float angle = i * spokeAngle;
+        float theta = angle * 3.14159f / 180.0f;
+        float x1 = (radius - spokeWidth) * cos(theta);
+        float y1 = (radius - spokeWidth) * sin(theta);
+        float x2 = (radius + spokeWidth) * cos(theta);
+        float y2 = (radius + spokeWidth) * sin(theta);
+        glVertex2f(x1, y1);
+        glVertex2f(x2, y2);
+    }
+    glEnd();
+
     glPopMatrix();
 
-    glFlush();
+    // Set the color for the fire hydrant
+    if (hydrantActive) {
+        glPushMatrix();
+        glTranslatef(hydrantPosition, -0.37f, 0.0f);  // Adjust the y-coordinate for the fire hydrant
 
+        // Draw the fire hydrant
+        glColor3f(1.0f, 0.0f, 0.0f);
+
+        // Draw the main body of the fire hydrant
+        glBegin(GL_QUADS);
+        glVertex2f(-0.03f, 0.0f);
+        glVertex2f(-0.03f, 0.2f);
+        glVertex2f(0.03f, 0.2f);
+        glVertex2f(0.03f, 0.0f);
+        glEnd();
+
+        // Draw the top part of the fire hydrant
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(0.0f, 0.3f);
+        for (float angle = 0.0f; angle <= 360.0f; angle += 10.0f) {
+            float theta = angle * 3.14159f / 180.0f;
+            float x = 0.03f * cos(theta);
+            float y = 0.3f + 0.03f * sin(theta);
+            glVertex2f(x, y);
+        }
+        glEnd();
+
+        glPopMatrix();
+    }
+
+    glFlush();
     glutSwapBuffers();
 }
 
 void update(int value) {
-    // Update the position of the drum
-    drumPosition += drumSpeed;
+    // Update the position of the wheel
+    wheelPosition += wheelSpeed;
 
-    // Wrap the drum position when it reaches the left edge
-    if (drumPosition < -1.2f)
-        drumPosition = 1.0f;
+    // Wrap the wheel position when it reaches the left edge
+    if (wheelPosition < -1.2f)
+        wheelPosition = 1.0f;
 
-    // Update the rotation angle of the drum
-    drumRotation += drumRotationSpeed;
+    // Update the rotation angle of the wheel
+    wheelRotation += wheelRotationSpeed;
 
-    // Wrap the drum rotation when it completes a full rotation
-    if (drumRotation > 360.0f)
-        drumRotation -= 360.0f;
+    // Wrap the wheel rotation when it completes a full rotation
+    if (wheelRotation > 360.0f)
+        wheelRotation -= 360.0f;
 
     // Update the position of the dashes
     roadPosition -= dashSpeed;
@@ -93,18 +129,25 @@ void update(int value) {
     if (roadPosition < -0.2f)
         roadPosition = 0.0f;
 
-    elapsedTime += 16; // Update elapsed time
+    // Update the position of the fire hydrant if it is active
+    if (hydrantActive) {
+        hydrantPosition += hydrantSpeed;
 
-    // Increase dash and drum speed every 20 seconds
-    if (elapsedTime >= 20000) {
-        elapsedTime = 0; // Reset elapsed time
-        dashSpeed += 0.001f; // Increase dash speed
-        drumSpeed -= 0.001f; // Decrease drum speed
+        // Deactivate the fire hydrant if it moves beyond the left edge
+        if (hydrantPosition < -1.2f) {
+            hydrantActive = false;
+        }
     }
 
-    glutPostRedisplay();
+    // Activate the fire hydrant after a 5-second delay
+    if (elapsedTime >= 5000 && !hydrantActive) {
+        hydrantActive = true;
+        hydrantPosition = 1.0f;
+    }
 
-    // Call update function again after a specified interval
+    elapsedTime += 16; // Update elapsed time
+
+    glutPostRedisplay();
     glutTimerFunc(16, update, 0);
 }
 
@@ -112,9 +155,9 @@ int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(800, 600);
-    glutCreateWindow("Drum Rolling on Road");
+    glutCreateWindow("Obstacle Animation");
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
@@ -122,7 +165,6 @@ int main(int argc, char** argv) {
     glutDisplayFunc(display);
     glutTimerFunc(0, update, 0);
     glutMainLoop();
-
     return 0;
 }
 
