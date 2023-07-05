@@ -3,6 +3,7 @@
 
 void init() {
     glClearColor(0.0, 0.0, 0.0, 1.0);
+    //glClearColor(1.0, 1.0, 1.0, 1.0); 
     glColor3f(1, 1, 1);
     glMatrixMode(GL_PROJECTION);
     glShadeModel(GL_SMOOTH);
@@ -17,7 +18,7 @@ void display() {
     float exityL = 0.5;   // Example value for exityL
     float exityU = -0.5;  // Example value for exityU
     
-    float bx = exitxL * 0.5;  // Half the length along the x-axis
+    float bx = (exitxL * 0.5)-0.35;  // Half the length along the x-axis
     float by = exityL;
     float w = 0.014;
     float step = (exityL - exityU) / 5.0;
@@ -48,19 +49,23 @@ void display() {
     glEnd();
     
    // Dark grey color for the entire cat shape
-	glBegin(GL_POLYGON);
-	glColor3f(0.2, 0.2, 0.2);  // Dark grey color
-	glVertex2f(bx, by-0.75);
-	glVertex2f(bx-0.5 + round, by + round-0.75);
-	glVertex2f(bx- round + bw, by + round-0.75);
-	glVertex2f(bx+ bw, by-0.75);
-	glVertex2f(bx + bw, (by - bh / 4)-0.75 );  // Reduce the height to half (divide by 2)
-	glVertex2f(bx -0.75+ bw - round, (by - bh / 4 - round)-0.75 );
-	glVertex2f(bx + round, (by - bh / 4 - round)-0.75 );
-	glVertex2f(bx, (by - bh / 4)-0.75 );
+		glBegin(GL_POLYGON);
+	    glColor3f(0.2, 0.2, 0.2);  // Dark grey color
+	    glVertex2f(bx, by - 0.75);
+	    glVertex2f(bx, by + round - 0.75);
+	    glVertex2f(bx + bw, by + round - 0.75);
+	    glVertex2f(bx + bw, by - 0.75);
+
+	    // Reduce the height to half (divide by 2)
+	    glVertex2f(bx + bw, (by - bh / 4) - 0.75);
+	    glVertex2f(bx + bw - round, (by - bh / 4) - 0.75);
+	    glVertex2f(bx + round, (by - bh / 4 - round) - 0.75);
+	    glVertex2f(bx + round, (by - bh / 4) - 0.75);
 	glEnd();
 
+
 	// Light grey color for the inner rectangular polygon with rounded edges
+	
 	glBegin(GL_POLYGON);
 	glColor3f(0.35, 0.35, 0.35); // Light grey color
 	float innerRound = round * 0.8;  // Adjust the inner round value to make it smaller than the outer round value
@@ -72,11 +77,12 @@ void display() {
 	glVertex2f(bx + bw - innerRound, (by - bh / 4 - innerRound) - 0.75);
 	glVertex2f(bx + innerRound, (by - bh / 4 - innerRound) - 0.75);
 	glVertex2f(bx + innerRound, by - 0.75);
-	glEnd();
+	glEnd();	
+
 
     // Four paws
     float fr = 0.02;
-    float fx = bx + bw;
+    float fx = bx + bw -0.23;
     float fy = by - bh - fr;
 
     glBegin(GL_TRIANGLE_FAN);
@@ -86,7 +92,7 @@ void display() {
     }
     glEnd();
 
-    fx -= bw;
+    fx -= bw-0.26;
     glBegin(GL_TRIANGLE_FAN);
     glColor3f(0.6, 0.6, 0.6);
     for (int i = 0; i <= 200; i += 6) {
@@ -102,7 +108,7 @@ void display() {
     }
     glEnd();
 
-    fx = fx * 0.6;
+    fx = (fx * 0.6)-0.05;
     glBegin(GL_TRIANGLE_FAN);
     glColor3f(0.6, 0.6, 0.6);
     for (int i = 0; i <= 200; i += 6) {
@@ -140,7 +146,7 @@ void display() {
     // Left eye
     fr = 0.01;
     fx -= fr * 2.5;
-
+    //fy += 0.05; // Move up by 0.25
     glColor3f(0, 0, 0);
     glBegin(GL_TRIANGLE_FAN);
     for (int i = 0; i <= 200; i += 6) {
@@ -161,7 +167,7 @@ void display() {
     // Right eye
     fr = 0.01;
     fx += fr * 4.5;
-
+    //fy += 0.05; // Move up by 0.25
     glColor3f(0, 0, 0);
     glBegin(GL_TRIANGLE_FAN);
     for (int i = 0; i <= 200; i += 6) {
@@ -181,8 +187,8 @@ void display() {
     // Nose
     fr = 0.005;  // Radius of the nose
     fx = bx + bw;
-    fy *= 0.9;
-
+    //fy *= 0.9;
+    fy -= 0.0000001;
     glColor3f(0, 0, 0);
     glBegin(GL_TRIANGLE_FAN);
     for (int i = 0; i <= 200; i += 6) {
@@ -190,8 +196,9 @@ void display() {
     }
     glEnd();
 
-    // Mouth
-    fy *= 0.8;
+    /*Mouth*/
+    //fy *= 0.8;
+    fy -= 0.04; // Reduce the space between mouth and eyes by adjusting fy
     float mw = 5;  // Mouth width measured in nose widths
     float mh = 2;  // Mouth height measured in nose widths
 
